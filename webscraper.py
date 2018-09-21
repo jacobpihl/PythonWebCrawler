@@ -4,6 +4,20 @@ from urllib.parse import urlparse
 import urllib.request
 
 current_domain = ""
+visited_links = []
+cur_file = None
+
+def create_file(name):
+	file = open(name + ".txt", 'w+', buffering=1)
+	return file
+
+def close_file():
+	cur_file.close()
+
+def write_to_file(text, depth):
+	for i in range(depth):
+		cur_file.write(" ")
+	cur_file.write("|- " + text + "\n")
 
 def get_html(url):
 	if url[:7] != "http://":
@@ -20,9 +34,9 @@ def get_domain(link):
 	domain = parsed_domain.netloc or parsed_domain.path # Just in case, for urls without scheme
 	domain_parts = domain.split('.')
 	if len(domain_parts) > 2:
-		return '.'.join(domain_parts[-(2 if domain_parts[-1] in {
-			'com', 'net', 'org', 'io', 'ly', 'me', 'sh', 'fm', 'us','se'} else 3):])
-	return domain.lower()
+		return str('.'.join(domain_parts[-(2 if domain_parts[-1] in {
+			'com', 'net', 'org', 'io', 'ly', 'me', 'sh', 'fm', 'us','se'} else 3):])).lower()
+	return str(domain.lower())
 
 def get_queue():
 	temp = open("queue.txt", 'r')
@@ -41,13 +55,11 @@ def handle_links(links, depth, maxdepth):
 		new_links = []
 
 		# If the current link is not the same domain as the website -> end
-		if (cur_link in parser.visited_links):
+		if (cur_link in visited_links):
 			continue
 
-		# Print to terminal or file with current depth as indent
-		for i in range(depth):
-			print('  ', end='', flush=True)
-		print("|-" + cur_link)
+		# Write to file with current depth as indent
+		write_to_file(cur_link, depth)
 
 		# If the current link has not been visited AND it is part of the same website
 		# Visit it and parse
@@ -57,7 +69,7 @@ def handle_links(links, depth, maxdepth):
 			new_links = parser.cur_links
 
 		# Add current link to visited
-		parser.visited_links.append(cur_link)
+		visited_links.append(cur_link)
 
 		# Call handle links again, with increased depth
 		handle_links(new_links, depth+1, maxdepth)
@@ -66,16 +78,20 @@ if __name__ == "__main__":
 	scrape_queue = get_queue()
 	parser = SimpleParser()
 	maxdepth = 5
+	starting_depth = 0
 
 	for website in scrape_queue:
-		parser.visited_links = []
+		if website[:7] != "http://":
+			website = "http://" + website;
+		visited_links = []
 
 		# Get current domain and print to terminal
 		current_domain = get_domain(website)
 		print("\nCurrently parsing: " + current_domain)
 
-		# Print to terminal or file with depth 0
-		#print("" + website)
+		# Create new file for writing to
+		cur_file = create_file(current_domain)
+		write_to_file(website, starting_depth)
 
 		# Get html links
 		website_HTML = get_html(website)
@@ -83,5 +99,10 @@ if __name__ == "__main__":
 		parser.feed(website_HTML)
 		website_links = parser.cur_links
 
+		visited_links.append(website)
+
 		# Handle the parsed links
-		handle_links(website_links, 0, maxdepth)
+		handle_links(website_links, starting_depth, maxdepth)
+
+		close_file()
+		print("Done parsing: " + current_domain)

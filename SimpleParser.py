@@ -6,7 +6,6 @@ class SimpleParser(HTMLParser):
 	LINK_START_TAG = "a"
 	LINK_TAG = "href"
 	cur_links = []
-	visited_links = []
 
 	def handle_starttag(self, tag, attrs):
 		if tag == self.LINK_START_TAG:
