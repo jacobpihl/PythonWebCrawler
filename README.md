@@ -1,2 +1,2 @@
-# WebScraper
-Web Scraper in Python
+# Web Crawler
+Web Crawler in Python
