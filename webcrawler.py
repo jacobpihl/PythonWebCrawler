@@ -202,7 +202,6 @@ if __name__ == "__main__":
 		print("\nCurrently crawling: " + current_domain)
 
 		# Create new file for writing to
-		print(current_domain)
 		create_file(current_domain)
 		write_to_file(website, starting_depth)
 
