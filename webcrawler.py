@@ -4,6 +4,7 @@ from SimpleParser import SimpleParser
 from urllib.parse import urlparse
 import networkx as nx
 import matplotlib.pyplot as plt
+import tldextract
 
 import plotly.plotly as py
 import plotly.graph_objs as go
@@ -13,7 +14,7 @@ visited_links = []
 cur_graph = None
 cur_file = None
 total_pages_crawled = 0
-maxdepth = 4
+maxdepth = 5
 starting_depth = 0
 
 def create_file(name):
@@ -32,8 +33,6 @@ def write_to_file(text, depth):
 
 
 def get_html(url):
-	if url[:7] != "http://":
-		url = "http://" + url;
 	try:
 		response = urllib.request.urlopen(url)
 		html = response.read()
@@ -43,12 +42,17 @@ def get_html(url):
 
 
 def get_domain(link):
+	ext = tldextract.extract(link)
+	return ext.registered_domain
+
+
+def get_domain_deprecated(link):
 	parsed_domain = urlparse(link)
-	domain = parsed_domain.netloc # or parsed_domain.path # Just in case, for urls without scheme
+	domain = parsed_domain.netloc
 	domain_parts = domain.split('.')
 	if len(domain_parts) > 2:
 		return str('.'.join(domain_parts[-(2 if domain_parts[-1] in {
-			'com', 'net', 'org', 'io', 'ly', 'me', 'sh', 'fm', 'us','se'} else 3):])).lower()
+			'com', 'net', 'org', 'io', 'ly', 'me', 'sh', 'fm', 'us','se', 'uz'} else 3):])).lower()
 	return str(domain.lower())
 
 
@@ -189,9 +193,6 @@ if __name__ == "__main__":
 	parser = SimpleParser()
 
 	for website in scrape_queue:
-		if website[:7] != "http://":
-			website = "http://" + website;
-
 		total_pages_crawled = 0
 		visited_links = []
 		cur_graph = nx.Graph()
@@ -201,6 +202,7 @@ if __name__ == "__main__":
 		print("\nCurrently crawling: " + current_domain)
 
 		# Create new file for writing to
+		print(current_domain)
 		create_file(current_domain)
 		write_to_file(website, starting_depth)
 
