@@ -128,7 +128,7 @@ def display_advanced_graph():
 				xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
 				yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
 
-	py.iplot(fig, filename='networkx')
+	py.iplot(fig, filename=str(current_domain))
 
 
 def format_new_links(links):
