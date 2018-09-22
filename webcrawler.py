@@ -71,6 +71,7 @@ def add_nodes(root_node, neighbours):
 
 
 def display_graph():
+	print("Displaying graph")
 	nx.draw(cur_graph)
 	plt.show()
 
@@ -222,5 +223,6 @@ if __name__ == "__main__":
 		handle_links(formatted_website_links, starting_depth, maxdepth)
 		close_file()
 		display_graph()
+		# display_advanced_graph()	# Generates more advanced graph using plot.ly
 
 		print("Done crawling: " + current_domain)
