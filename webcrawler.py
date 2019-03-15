@@ -14,7 +14,7 @@ visited_links = []
 cur_graph = None
 cur_file = None
 total_pages_crawled = 0
-maxdepth = 5
+maxdepth = 10
 starting_depth = 0
 
 def create_file(name):
